@@ -1,25 +1,26 @@
-# This file will need to use the DataManager,FlightSearch, FlightData, NotificationManager classes to achieve the program requirements.
-import requests
+from datetime import datetime, timedelta
+from data_manager import DataManager
+from flight_search import FlightSearch
 
-FLIGHT_TOKEN = ""
-# sheet_endpoint = "https://api.sheety.co/df7f4f644a6e5cc30eb6dafeb0961f82/flightDeals/prices"
-# sheet_headers = {"Authorization": "Basic "}
-#
-# sheet_response = requests.get(url=sheet_endpoint, headers=sheet_headers)
-# print(sheet_response.text)
+data_manager = DataManager()
+sheet_data = data_manager.get_destination_data()
+flight_search = FlightSearch()
 
+ORIGIN_CITY_IATA = "LON"
 
-flight_endpoint = "https://tequila-api.kiwi.com/v2/search"
-flight_params = {
+if sheet_data[0]["iataCode"] == "":
+    for row in sheet_data:
+        row["iataCode"] = flight_search.get_destination_code(row["city"])
+    data_manager.destination_data = sheet_data
+    data_manager.update_destination_codes()
 
-    "fly_from": "LGA",
-    "fly_to": "MIA",
-    "dateFrom": "01/09/2022",
-    "dateTo": "02/11/2022"
-}
-flight_headers = {
-    "apikey": FLIGHT_TOKEN,
-    "Content-Type": "application/json"
-}
-flight_response = requests.get(url=flight_endpoint, params=flight_params, headers=flight_headers)
-print(flight_response.text)
+tomorrow = datetime.now() + timedelta(days=1)
+six_months_from_today = datetime.now() + timedelta(days=(6 * 30))
+
+for destination in sheet_data:
+    flight = flight_search.check_flights(
+        ORIGIN_CITY_IATA,
+        destination["iataCode"],
+        from_time=tomorrow,
+        to_time=six_months_from_today
+    )
