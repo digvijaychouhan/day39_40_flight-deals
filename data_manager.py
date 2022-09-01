@@ -3,7 +3,7 @@ import requests
 
 SHEETY_PRICE_ENDPOINT = environ.get("SHEETY_PRICE_ENDPOINT")
 SHEETY_ENDPOINT_EMAILS = environ.get("SHEETY_ENDPOINT_EMAILS")
-SHEETY_HEADERS = {"Authorization": "Basic Y2hvdWhhbl9kaWd2aWpheTphc3RhbGF2aXN0YQ=="}
+SHEETY_HEADERS = {"Authorization": environ.get("SHEET_API")}
 
 
 class DataManager:
